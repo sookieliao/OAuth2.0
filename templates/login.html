@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <meta name="google-signin-client_id" content="499542831372-ju62484uu1emj6afbg2bs8ue18rjgcpa.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+  <!-- onload here specifies we want the given action to be taken ONLY when the previous line is executed.-->
+</head>
+
+<body>
+
+  <a href="#" onclick="signOut();">Sign out</a>
+  <div id="result"></div>
+  <script>
+    function onSuccess(googleUser) {
+      console.log(googleUser);
+      // Retrieve id-token and access-token
+      access_token = googleUser.Zi.access_token;
+      id_token = googleUser.getAuthResponse().id_token;
+
+      if(id_token){
+        $('#my-signin2').attr('style','display:none');
+      };
+      var code = { id: id_token, access: access_token}
+      $.ajax({
+        type: 'POST',
+        url: '/gconnect?state={{STATE}}',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(code),
+        processData: false,
+        success: function(result) {
+          console.log(result)
+          // Handle or verify the server response if necessary.
+          if (result) {
+            $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+            setTimeout(function() {
+            window.location.href = "/restaurant";
+            }, 4000);
+
+          } else {
+            console.log("There's an error!")
+            }
+          }
+      });
+    }
+
+    function signOut(){
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut().then(function (){
+        console.log('User signed out.');
+      });
+    };
+    //signOut();
+
+    function onFailure(error) {
+      console.log(error);
+    }
+
+    function onLoad(){
+      gapi.load('auth2', function(){
+        auth2 = gapi.auth2.getAuthInstance({
+          client_id: '499542831372-ju62484uu1emj6afbg2bs8ue18rjgcpa.apps.googleusercontent.com',
+          fetch_basic_profile:true,
+          scope: 'profile',
+          prompt: 'consent'
+        });
+
+        // Sign in the user and retrieve their ID.
+        auth2.signIn().then(function() {
+           onSuccess(auth2.currentUser.get());
+        });
+      });
+    }
+
+  </script>
+  <div id="my-signin2" class="g-signin2"></div>
+  <!--onSuccess:defines what action to take when this div is done rendered.-->
+
+  </body>
+
+  </html>
