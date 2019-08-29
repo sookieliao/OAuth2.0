@@ -218,7 +218,7 @@ def showRestaurants():
   session = DBSession()
   restaurants = session.query(Restaurant).order_by(asc(Restaurant.name))
   if not login_session['user_id']:
-        return render_template('publicrestaurants.html', restaurants = restaurants)
+      return render_template('publicrestaurants.html', restaurants = restaurants)
   return render_template('restaurants.html', restaurants = restaurants)
 
 #Create a new restaurant
@@ -253,13 +253,13 @@ def editRestaurant(restaurant_id):
 #Delete a restaurant
 @app.route('/restaurant/<int:restaurant_id>/delete/', methods = ['GET','POST'])
 def deleteRestaurant(restaurant_id):
+    session = DBSession()
     restaurantToDelete = session.query(Restaurant).filter_by(id = restaurant_id).one()
     if 'username' not in login_session:
         return redirect('/login')
     if restaurantToDelete.user_id != login_session['user_id']:
         return "<script> function myFun(){alert('You are not authorized to delete this restaurant. Please create your own restaurant in order to delete.');}</script><body onload='myFunc()''>"
     if request.method == 'POST':
-        session = DBSession()
         session.delete(restaurantToDelete)
         flash('%s Successfully Deleted' % restaurantToDelete.name)
         session.commit()
@@ -274,27 +274,28 @@ def showMenu(restaurant_id):
     session = DBSession()
     restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
     items = session.query(MenuItem).filter_by(restaurant_id = restaurant_id).all()
-    creator = session.query(Restaurant).filter_by(restaurant_id=restaurant_id).one().user_id
+    creator = session.query(Restaurant).filter_by(id=restaurant_id).one().user_id
     if creator == login_session['user_id']:
         return render_template('menu.html', items = items, restaurant = restaurant)
-    return render_template('publicmenu.html', items = items, restaurant = restaurant)
+    return render_template('publicmenu.html', items = items, restaurant = restaurant, creator=creator)
 
 
 
 #Create a new menu item
 @app.route('/restaurant/<int:restaurant_id>/menu/new/',methods=['GET','POST'])
 def newMenuItem(restaurant_id):
-  restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
-  if request.method == 'POST':
-      session = DBSession()
-      newItem = MenuItem(name = request.form['name'], description = request.form['description'],
-        price = request.form['price'], course = request.form['course'], restaurant_id = restaurant_id, user_id=login_session['user_id'])
-      session.add(newItem)
-      session.commit()
-      flash('New Menu %s Item Successfully Created' % (newItem.name))
-      return redirect(url_for('showMenu', restaurant_id = restaurant_id))
-  else:
-      return render_template('newmenuitem.html', restaurant_id = restaurant_id)
+    session = DBSession()
+    restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
+    if request.method == 'POST':
+        session = DBSession()
+        newItem = MenuItem(name = request.form['name'], description = request.form['description'],
+            price = request.form['price'], course = request.form['course'], restaurant_id = restaurant_id, user_id=login_session['user_id'])
+        session.add(newItem)
+        session.commit()
+        flash('New Menu %s Item Successfully Created' % (newItem.name))
+        return redirect(url_for('showMenu', restaurant_id = restaurant_id))
+    else:
+        return render_template('newmenuitem.html', restaurant_id = restaurant_id)
 
 #Edit a menu item
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET','POST'])
@@ -322,10 +323,10 @@ def editMenuItem(restaurant_id, menu_id):
 #Delete a menu item
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods = ['GET','POST'])
 def deleteMenuItem(restaurant_id,menu_id):
+    session = DBSession()
     restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
     itemToDelete = session.query(MenuItem).filter_by(id = menu_id).one()
     if request.method == 'POST':
-        session = DBSession()
         session.delete(itemToDelete)
         session.commit()
         flash('Menu Item Successfully Deleted')
