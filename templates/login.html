@@ -2,7 +2,7 @@
 <html>
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <meta name="google-signin-client_id" content="499542831372-ju62484uu1emj6afbg2bs8ue18rjgcpa.apps.googleusercontent.com">
+  <meta name="google-signin-client_id" content="**your client id**.apps.googleusercontent.com">
   <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
   <!-- onload here specifies we want the given action to be taken ONLY when the previous line is executed.-->
 </head>
@@ -60,7 +60,7 @@
     function onLoad(){
       gapi.load('auth2', function(){
         auth2 = gapi.auth2.getAuthInstance({
-          client_id: '499542831372-ju62484uu1emj6afbg2bs8ue18rjgcpa.apps.googleusercontent.com',
+          client_id: '**your client id**.apps.googleusercontent.com',
           fetch_basic_profile:true,
           scope: 'profile',
           prompt: 'consent'
